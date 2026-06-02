@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load inventory_tags %}
+
+{% block title %}Sales History - Smart Inventory{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h1 class="page-title">Sales History</h1>
+        <p class="page-subtitle">View and manage all transactions</p>
+    </div>
+    <a href="{% url 'sale_create' %}" class="btn btn-primary">
+        <i class="bi bi-cart-plus me-2"></i>New Sale
+    </a>
+</div>
+
+<!-- Date Filter -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body py-3">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small text-muted">From Date</label>
+                <input type="date" name="start_date" class="form-control" value="{{ start_date }}">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small text-muted">To Date</label>
+                <input type="date" name="end_date" class="form-control" value="{{ end_date }}">
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-fill">
+                    <i class="bi bi-filter me-1"></i>Filter
+                </button>
+                <a href="{% url 'sale_list' %}" class="btn btn-outline-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Sales Table -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        {% if sales %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="px-4">Sale #</th>
+                        <th>Customer</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Created By</th>
+                        <th>Date</th>
+                        <th class="text-end px-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in sales %}
+                    <tr>
+                        <td class="px-4">
+                            <a href="{% url 'sale_detail' sale.pk %}" class="text-primary fw-semibold text-decoration-none">
+                                {{ sale.sale_number }}
+                            </a>
+                        </td>
+                        <td>
+                            <div>{{ sale.customer_name }}</div>
+                            {% if sale.customer_email %}
+                            <div class="text-muted small">{{ sale.customer_email }}</div>
+                            {% endif %}
+                        </td>
+                        <td><span class="badge bg-secondary">{{ sale.total_items }} items</span></td>
+                        <td class="fw-semibold text-success">{{ sale.total_amount|currency }}</td>
+                        <td>
+                            {% if sale.status == 'completed' %}
+                            <span class="badge bg-success">Completed</span>
+                            {% elif sale.status == 'pending' %}
+                            <span class="badge bg-warning text-dark">Pending</span>
+                            {% else %}
+                            <span class="badge bg-danger">Cancelled</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted small">{{ sale.created_by.get_full_name|default:sale.created_by.username|default:'—' }}</td>
+                        <td class="text-muted small">{{ sale.created_at|date:"M d, Y" }}<br><span>{{ sale.created_at|date:"g:i A" }}</span></td>
+                        <td class="text-end px-4">
+                            <a href="{% url 'sale_detail' sale.pk %}" class="btn btn-sm btn-outline-primary me-1">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            {% if sale.status == 'completed' %}
+                            <a href="{% url 'sale_cancel' sale.pk %}" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-x-circle"></i>
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if sales.has_other_pages %}
+        <div class="d-flex justify-content-center p-4">
+            <nav>
+                <ul class="pagination mb-0">
+                    {% if sales.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ sales.previous_page_number }}&start_date={{ start_date }}&end_date={{ end_date }}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% for num in sales.paginator.page_range %}
+                    <li class="page-item {% if sales.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}&start_date={{ start_date }}&end_date={{ end_date }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+                    {% if sales.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ sales.next_page_number }}&start_date={{ start_date }}&end_date={{ end_date }}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-receipt fs-1"></i>
+            <h5 class="mt-3">No sales found</h5>
+            <p>{% if start_date or end_date %}No sales in the selected date range.{% else %}Start making sales!{% endif %}</p>
+            <a href="{% url 'sale_create' %}" class="btn btn-primary mt-2">
+                <i class="bi bi-cart-plus me-2"></i>Create First Sale
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

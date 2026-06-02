@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Update Stock - Smart Inventory{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb small">
+                <li class="breadcrumb-item"><a href="{% url 'inventory' %}">Inventory</a></li>
+                <li class="breadcrumb-item active">Update Stock</li>
+            </ol>
+        </nav>
+        <h1 class="page-title">Update Stock</h1>
+        <p class="page-subtitle">Manually adjust product stock levels</p>
+    </div>
+    <a href="{% url 'inventory' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back to Inventory
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h5 class="mb-0 fw-semibold"><i class="bi bi-arrow-repeat me-2 text-primary"></i>Stock Adjustment</h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label class="form-label fw-medium">Product <span class="text-danger">*</span></label>
+                        {{ form.product }}
+                        <div class="form-text">Select the product to update</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-medium">Quantity Change <span class="text-danger">*</span></label>
+                        {{ form.quantity_change }}
+                        <div class="form-text">
+                            Use <strong class="text-success">positive numbers</strong> to add stock (e.g. +50),
+                            and <strong class="text-danger">negative numbers</strong> to remove stock (e.g. -10).
+                        </div>
+                        {% if form.quantity_change.errors %}
+                        <div class="text-danger small mt-1">{{ form.quantity_change.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-medium">Notes</label>
+                        {{ form.notes }}
+                        <div class="form-text">Reason for this adjustment (optional but recommended)</div>
+                    </div>
+
+                    <!-- Quick Reference -->
+                    <div class="alert alert-info d-flex gap-3 mb-4">
+                        <i class="bi bi-info-circle-fill flex-shrink-0 mt-1"></i>
+                        <div class="small">
+                            <strong>Common adjustment reasons:</strong><br>
+                            Stock received from supplier · Damaged/expired goods · Inventory count correction · Customer return
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3">
+                        <button type="submit" class="btn btn-primary btn-lg px-4">
+                            <i class="bi bi-check-circle me-2"></i>Update Stock
+                        </button>
+                        <a href="{% url 'inventory' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

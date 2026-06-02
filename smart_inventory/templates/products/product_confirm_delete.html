@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete {{ product.name }} - Smart Inventory{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center p-5">
+                <div class="text-danger mb-3">
+                    <i class="bi bi-exclamation-triangle-fill" style="font-size:3.5rem"></i>
+                </div>
+                <h4 class="fw-bold">Delete Product?</h4>
+                <p class="text-muted mt-2">
+                    You are about to permanently delete <strong>{{ product.name }}</strong> (SKU: {{ product.sku }}).
+                    This action cannot be undone.
+                </p>
+                {% if product.stock_quantity > 0 %}
+                <div class="alert alert-warning text-start mt-3">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    This product has <strong>{{ product.stock_quantity }} units</strong> in stock.
+                </div>
+                {% endif %}
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-lg px-4">
+                            <i class="bi bi-trash me-2"></i>Yes, Delete
+                        </button>
+                    </form>
+                    <a href="{% url 'product_list' %}" class="btn btn-outline-secondary btn-lg px-4">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

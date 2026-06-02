@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load inventory_tags %}
+
+{% block title %}{{ sale.sale_number }} - Smart Inventory{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb small">
+                <li class="breadcrumb-item"><a href="{% url 'sale_list' %}">Sales</a></li>
+                <li class="breadcrumb-item active">{{ sale.sale_number }}</li>
+            </ol>
+        </nav>
+        <h1 class="page-title">{{ sale.sale_number }}</h1>
+    </div>
+    <div class="d-flex gap-2">
+        <button onclick="window.print()" class="btn btn-outline-secondary">
+            <i class="bi bi-printer me-2"></i>Print Receipt
+        </button>
+        {% if sale.status == 'completed' %}
+        <a href="{% url 'sale_cancel' sale.pk %}" class="btn btn-outline-danger">
+            <i class="bi bi-x-circle me-2"></i>Cancel Sale
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-xl-8">
+        <!-- Receipt Card -->
+        <div class="card border-0 shadow-sm" id="receiptCard">
+            <div class="card-body p-4">
+                <!-- Receipt Header -->
+                <div class="text-center border-bottom pb-4 mb-4">
+                    <i class="bi bi-boxes text-primary" style="font-size:2.5rem"></i>
+                    <h3 class="fw-bold text-primary mt-2 mb-0">SmartInventory</h3>
+                    <p class="text-muted small">Sales Receipt</p>
+                    <div class="mt-2">
+                        <span class="fs-5 fw-semibold">{{ sale.sale_number }}</span>
+                        <div class="mt-1">
+                            {% if sale.status == 'completed' %}
+                            <span class="badge bg-success px-3 py-2">✓ COMPLETED</span>
+                            {% elif sale.status == 'cancelled' %}
+                            <span class="badge bg-danger px-3 py-2">✗ CANCELLED</span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark px-3 py-2">PENDING</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sale Info -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6 class="text-muted text-uppercase small mb-2">Customer Details</h6>
+                        <p class="mb-1 fw-semibold">{{ sale.customer_name }}</p>
+                        {% if sale.customer_email %}
+                        <p class="mb-1 text-muted small">{{ sale.customer_email }}</p>
+                        {% endif %}
+                        {% if sale.customer_phone %}
+                        <p class="mb-0 text-muted small">{{ sale.customer_phone }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <h6 class="text-muted text-uppercase small mb-2">Sale Details</h6>
+                        <p class="mb-1 small"><strong>Date:</strong> {{ sale.created_at|date:"F d, Y g:i A" }}</p>
+                        <p class="mb-1 small"><strong>Served by:</strong> {{ sale.created_by.get_full_name|default:sale.created_by.username|default:'—' }}</p>
+                        {% if sale.notes %}
+                        <p class="mb-0 small"><strong>Notes:</strong> {{ sale.notes }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Items Table -->
+                <div class="table-responsive">
+                    <table class="table table-borderless mb-0">
+                        <thead class="border-bottom">
+                            <tr class="text-muted small text-uppercase">
+                                <th>#</th>
+                                <th>Product</th>
+                                <th class="text-center">Qty</th>
+                                <th class="text-end">Unit Price</th>
+                                <th class="text-end">Discount</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr class="border-bottom">
+                                <td class="text-muted small">{{ forloop.counter }}</td>
+                                <td>
+                                    <a href="{% url 'product_detail' item.product.pk %}" class="text-decoration-none fw-medium">
+                                        {{ item.product.name }}
+                                    </a>
+                                    <div class="text-muted" style="font-size:0.78rem">SKU: {{ item.product.sku }}</div>
+                                </td>
+                                <td class="text-center">{{ item.quantity }}</td>
+                                <td class="text-end">${{ item.unit_price }}</td>
+                                <td class="text-end text-muted small">
+                                    {% if item.discount > 0 %}{{ item.discount }}%{% else %}—{% endif %}
+                                </td>
+                                <td class="text-end fw-semibold">${{ item.total_price|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="border-top">
+                            <tr>
+                                <td colspan="5" class="text-end fw-bold fs-5 pt-3">Grand Total</td>
+                                <td class="text-end fw-bold fs-4 text-success pt-3">${{ sale.total_amount|floatformat:2 }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Footer -->
+                <div class="text-center border-top mt-4 pt-4 text-muted small">
+                    <p class="mb-0">Thank you for your purchase!</p>
+                    <p class="mb-0">Smart Inventory Management System</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Side Info -->
+    <div class="col-xl-4">
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body">
+                <h6 class="fw-semibold mb-3">Sale Summary</h6>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Total Items</span>
+                    <span class="fw-semibold">{{ sale.total_items }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Subtotal</span>
+                    <span class="fw-semibold">${{ sale.subtotal|floatformat:2 }}</span>
+                </div>
+                <div class="d-flex justify-content-between pt-2 border-top">
+                    <span class="fw-bold">Grand Total</span>
+                    <span class="fw-bold text-success fs-5">${{ sale.total_amount|floatformat:2 }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h6 class="fw-semibold mb-3">Quick Actions</h6>
+                <a href="{% url 'sale_create' %}" class="btn btn-primary w-100 mb-2">
+                    <i class="bi bi-cart-plus me-2"></i>New Sale
+                </a>
+                <a href="{% url 'sale_list' %}" class="btn btn-outline-secondary w-100 mb-2">
+                    <i class="bi bi-list me-2"></i>All Sales
+                </a>
+                <button onclick="window.print()" class="btn btn-outline-secondary w-100">
+                    <i class="bi bi-printer me-2"></i>Print Receipt
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+@media print {
+    .sidebar, .top-navbar, .d-flex.justify-content-between, .col-xl-4,
+    .btn, nav[aria-label="breadcrumb"] { display: none !important; }
+    .col-xl-8 { width: 100% !important; flex: 0 0 100% !important; max-width: 100% !important; }
+    .card { box-shadow: none !important; }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login - Smart Inventory{% endblock %}
+
+{% block auth_content %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #1e3a5f 0%, #2d6a9f 50%, #1e3a5f 100%);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5 col-lg-4">
+                <!-- Logo/Brand -->
+                <div class="text-center mb-4">
+                    <div class="brand-icon mb-3">
+                        <i class="bi bi-boxes text-white" style="font-size: 3rem;"></i>
+                    </div>
+                    <h2 class="text-white fw-bold">SmartInventory</h2>
+                    <p class="text-white-50">Inventory Management System</p>
+                </div>
+
+                <!-- Login Card -->
+                <div class="card shadow-lg border-0 rounded-4">
+                    <div class="card-body p-4">
+                        <h4 class="card-title text-center mb-4 fw-semibold">Welcome Back</h4>
+
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label fw-medium">Username</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                    <input type="text" name="username" class="form-control form-control-lg"
+                                           placeholder="Enter username" value="{{ form.username.value|default:'' }}" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-medium">Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                    <input type="password" name="password" class="form-control form-control-lg"
+                                           placeholder="Enter password" required>
+                                </div>
+                            </div>
+
+                            {% if form.errors %}
+                            <div class="alert alert-danger py-2">
+                                <i class="bi bi-exclamation-circle me-2"></i>Invalid username or password.
+                            </div>
+                            {% endif %}
+
+                            <button type="submit" class="btn btn-primary btn-lg w-100 fw-semibold">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                            </button>
+                        </form>
+
+                        <hr class="my-3">
+                        <div class="text-center">
+                            <p class="text-muted mb-0">Don't have an account?
+                                <a href="{% url 'register' %}" class="text-primary fw-semibold">Register here</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Demo credentials hint -->
+                <div class="card mt-3 border-0 bg-white bg-opacity-10">
+                    <div class="card-body p-3 text-white-75">
+                        <p class="mb-1 small fw-semibold text-white"><i class="bi bi-info-circle me-1"></i>Demo Credentials:</p>
+                        <p class="mb-0 small text-white-50">Username: <strong class="text-white">admin</strong> | Password: <strong class="text-white">admin123</strong></p>
+                        <p class="mb-0 small text-white-50">Username: <strong class="text-white">demo</strong> | Password: <strong class="text-white">demo123</strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

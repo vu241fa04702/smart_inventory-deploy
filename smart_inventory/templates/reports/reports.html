@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load inventory_tags %}
+
+{% block title %}Reports - Smart Inventory{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <h1 class="page-title">Revenue Reports</h1>
+    <p class="page-subtitle">Analyze your sales and revenue performance</p>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-4">
+                <div class="text-primary mb-2"><i class="bi bi-calendar-day" style="font-size:2rem"></i></div>
+                <h3 class="fw-bold text-primary">{{ today_revenue|currency }}</h3>
+                <p class="text-muted mb-1">Today's Revenue</p>
+                <span class="badge bg-primary bg-opacity-10 text-primary">{{ today_sales_count }} sales</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-4">
+                <div class="text-info mb-2"><i class="bi bi-calendar-week" style="font-size:2rem"></i></div>
+                <h3 class="fw-bold text-info">{{ week_revenue|currency }}</h3>
+                <p class="text-muted mb-1">Last 7 Days</p>
+                <span class="badge bg-info bg-opacity-10 text-info">{{ week_sales_count }} sales</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-4">
+                <div class="text-success mb-2"><i class="bi bi-calendar-month" style="font-size:2rem"></i></div>
+                <h3 class="fw-bold text-success">{{ month_revenue|currency }}</h3>
+                <p class="text-muted mb-1">This Month</p>
+                <span class="badge bg-success bg-opacity-10 text-success">{{ month_sales_count }} sales</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-4">
+                <div class="text-warning mb-2"><i class="bi bi-graph-up-arrow" style="font-size:2rem"></i></div>
+                <h3 class="fw-bold text-warning">{{ total_revenue|currency }}</h3>
+                <p class="text-muted mb-1">All-Time Revenue</p>
+                <span class="badge bg-warning bg-opacity-10 text-warning">{{ total_sales }} total sales</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts & Top Products -->
+<div class="row g-4 mb-4">
+    <!-- Monthly Summary Chart -->
+    <div class="col-xl-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h5 class="mb-0 fw-semibold">Monthly Revenue Trend (Last 12 Months)</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="monthlyTrendChart" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Products This Month -->
+    <div class="col-xl-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0">
+                <h5 class="mb-0 fw-semibold">Top Products This Month</h5>
+            </div>
+            <div class="card-body p-0">
+                {% if top_products_month %}
+                <div class="list-group list-group-flush">
+                    {% for p in top_products_month %}
+                    <div class="list-group-item px-4 py-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="mb-0 fw-medium small">{{ p.product__name }}</p>
+                                <span class="text-muted" style="font-size:0.78rem">{{ p.total_qty }} units sold</span>
+                            </div>
+                            <span class="badge bg-success">{{ p.total_rev|currency }}</span>
+                        </div>
+                        <!-- Mini progress bar -->
+                        <div class="progress mt-2" style="height:4px">
+                            <div class="progress-bar bg-success" style="width:{{ p.total_rev|floatformat:0 }}px; max-width:100%"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4 text-muted">
+                    <i class="bi bi-bar-chart fs-2"></i>
+                    <p class="mt-2 small">No sales data this month</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Monthly Summary Table -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-0">
+        <h5 class="mb-0 fw-semibold">Monthly Summary (Last 12 Months)</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="px-4">Month</th>
+                        <th>Sales Count</th>
+                        <th>Revenue</th>
+                        <th>Avg Per Sale</th>
+                        <th>Trend</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for month in monthly_summary %}
+                    <tr>
+                        <td class="px-4 fw-medium">{{ month.month }}</td>
+                        <td>
+                            <span class="badge bg-secondary">{{ month.sales_count }}</span>
+                        </td>
+                        <td class="fw-semibold text-success">{{ month.revenue|currency }}</td>
+                        <td class="text-muted small">
+                            {% if month.sales_count > 0 %}
+                            ${{ month.revenue|floatformat:2 }}
+                            {% else %}—{% endif %}
+                        </td>
+                        <td>
+                            <div class="progress" style="height:8px; width:120px">
+                                <div class="progress-bar bg-primary"
+                                     style="width:{% if month.revenue > 0 %}{{ month.revenue|floatformat:0 }}px{% else %}0{% endif %}; max-width:100%"></div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Daily Breakdown This Month -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-semibold">Daily Breakdown — {{ today|date:"F Y" }}</h5>
+        <span class="badge bg-primary">{{ today|date:"F Y" }}</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="px-4">Date</th>
+                        <th>Day</th>
+                        <th>Sales Count</th>
+                        <th>Revenue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for day in daily_breakdown %}
+                    {% if day.revenue > 0 or day.sales_count > 0 %}
+                    <tr>
+                        <td class="px-4 fw-medium">{{ day.date|date:"M d, Y" }}</td>
+                        <td class="text-muted small">{{ day.date|date:"l" }}</td>
+                        <td><span class="badge bg-secondary">{{ day.sales_count }}</span></td>
+                        <td class="fw-semibold {% if day.revenue > 0 %}text-success{% else %}text-muted{% endif %}">
+                            {{ day.revenue|currency }}
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-muted">No sales data for this month.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Monthly Trend Chart
+const monthlyData = [{% for m in monthly_summary %}{{ m.revenue }},{% endfor %}];
+const monthlyLabels = [{% for m in monthly_summary %}"{{ m.month }}",{% endfor %}];
+
+const ctx = document.getElementById('monthlyTrendChart').getContext('2d');
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: monthlyLabels,
+        datasets: [{
+            label: 'Revenue ($)',
+            data: monthlyData,
+            backgroundColor: monthlyData.map(v => v > 0 ? 'rgba(13, 110, 253, 0.15)' : 'rgba(200,200,200,0.1)'),
+            borderColor: monthlyData.map(v => v > 0 ? 'rgba(13, 110, 253, 0.8)' : 'rgba(200,200,200,0.3)'),
+            borderWidth: 2,
+            borderRadius: 6,
+            borderSkipped: false,
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: { label: ctx => ' $' + ctx.raw.toFixed(2) }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: { color: 'rgba(0,0,0,0.05)' },
+                ticks: { callback: val => '$' + val }
+            },
+            x: { grid: { display: false } }
+        }
+    }
+});
+</script>
+{% endblock %}

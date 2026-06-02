@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load inventory_tags %}
+
+{% block title %}New Sale - Smart Inventory{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb small">
+                <li class="breadcrumb-item"><a href="{% url 'sale_list' %}">Sales</a></li>
+                <li class="breadcrumb-item active">New Sale</li>
+            </ol>
+        </nav>
+        <h1 class="page-title">Create New Sale</h1>
+    </div>
+    <a href="{% url 'sale_list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back
+    </a>
+</div>
+
+<form method="post" id="saleForm">
+    {% csrf_token %}
+    <div class="row g-4">
+        <!-- Left: Products -->
+        <div class="col-xl-8">
+            <!-- Product Selection -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-semibold"><i class="bi bi-cart me-2 text-primary"></i>Sale Items</h5>
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="addItemBtn">
+                        <i class="bi bi-plus-circle me-1"></i>Add Item
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="saleItems">
+                        <!-- Items will be added here dynamically -->
+                    </div>
+
+                    <div id="noItemsMsg" class="text-center py-4 text-muted">
+                        <i class="bi bi-cart-x fs-2"></i>
+                        <p class="mt-2 mb-0">No items added yet. Click "Add Item" to start.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Info -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-0 fw-semibold"><i class="bi bi-person me-2 text-success"></i>Customer Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Customer Name</label>
+                            {{ sale_form.customer_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Phone Number</label>
+                            {{ sale_form.customer_phone }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email Address</label>
+                            {{ sale_form.customer_email }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Notes</label>
+                            {{ sale_form.notes }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Summary -->
+        <div class="col-xl-4">
+            <div class="card border-0 shadow-sm sticky-top" style="top: 80px">
+                <div class="card-header bg-primary text-white border-0">
+                    <h5 class="mb-0 fw-semibold"><i class="bi bi-receipt me-2"></i>Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div id="orderSummary">
+                        <div class="text-center text-muted py-3">
+                            <i class="bi bi-cart fs-2"></i>
+                            <p class="mt-2 small">Add items to see summary</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0">
+                    <div class="d-flex justify-content-between align-items-center mb-3 py-2 border-top border-bottom">
+                        <span class="fw-bold fs-5">Total</span>
+                        <span class="fw-bold fs-4 text-success" id="grandTotal">$0.00</span>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-lg w-100 fw-semibold" id="submitSaleBtn" disabled>
+                        <i class="bi bi-check-circle me-2"></i>Complete Sale
+                    </button>
+                    <a href="{% url 'sale_list' %}" class="btn btn-outline-secondary w-100 mt-2">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Item Row Template (hidden, cloned by JS) -->
+<template id="itemRowTemplate">
+    <div class="sale-item-row border rounded-3 p-3 mb-3 bg-light" data-index="__INDEX__">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small fw-medium">Product</label>
+                <select name="product_id[]" class="form-select form-select-sm product-select" required>
+                    <option value="">-- Select Product --</option>
+                    {% for product in products %}
+                    <option value="{{ product.pk }}"
+                            data-price="{{ product.price }}"
+                            data-stock="{{ product.stock_quantity }}">
+                        {{ product.name }} ({{ product.stock_quantity }} in stock)
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-medium">Qty</label>
+                <input type="number" name="quantity[]" class="form-control form-control-sm qty-input"
+                       min="1" value="1" required>
+                <div class="text-muted stock-info" style="font-size:0.75rem"></div>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-medium">Unit Price ($)</label>
+                <input type="number" name="unit_price[]" class="form-control form-control-sm price-input"
+                       step="0.01" min="0" placeholder="0.00" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-medium">Discount (%)</label>
+                <input type="number" name="discount[]" class="form-control form-control-sm discount-input"
+                       step="0.01" min="0" max="100" value="0">
+            </div>
+            <div class="col-md-1">
+                <label class="form-label small fw-medium">Total</label>
+                <div class="fw-semibold text-success item-total pt-1">$0.00</div>
+            </div>
+            <div class="col-md-1 text-end">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-item-btn mt-3">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</template>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let itemIndex = 0;
+
+const addItemBtn = document.getElementById('addItemBtn');
+const saleItems = document.getElementById('saleItems');
+const noItemsMsg = document.getElementById('noItemsMsg');
+const submitBtn = document.getElementById('submitSaleBtn');
+const grandTotalEl = document.getElementById('grandTotal');
+const orderSummaryEl = document.getElementById('orderSummary');
+
+function addItem() {
+    const template = document.getElementById('itemRowTemplate');
+    const clone = template.content.cloneNode(true);
+    const row = clone.querySelector('.sale-item-row');
+    row.setAttribute('data-index', itemIndex);
+
+    saleItems.appendChild(clone);
+    noItemsMsg.style.display = 'none';
+    itemIndex++;
+
+    bindRowEvents(row);
+    updateSummary();
+}
+
+function bindRowEvents(row) {
+    const productSelect = row.querySelector('.product-select');
+    const qtyInput = row.querySelector('.qty-input');
+    const priceInput = row.querySelector('.price-input');
+    const discountInput = row.querySelector('.discount-input');
+    const removeBtn = row.querySelector('.remove-item-btn');
+    const stockInfo = row.querySelector('.stock-info');
+
+    productSelect.addEventListener('change', function() {
+        const option = this.options[this.selectedIndex];
+        const price = option.dataset.price || '';
+        const stock = option.dataset.stock || '';
+        priceInput.value = price;
+        qtyInput.max = stock;
+        stockInfo.textContent = stock ? `Max: ${stock}` : '';
+        updateRowTotal(row);
+        updateSummary();
+    });
+
+    [qtyInput, priceInput, discountInput].forEach(input => {
+        input.addEventListener('input', () => {
+            updateRowTotal(row);
+            updateSummary();
+        });
+    });
+
+    removeBtn.addEventListener('click', function() {
+        row.remove();
+        if (saleItems.querySelectorAll('.sale-item-row').length === 0) {
+            noItemsMsg.style.display = '';
+        }
+        updateSummary();
+    });
+}
+
+function updateRowTotal(row) {
+    const qty = parseFloat(row.querySelector('.qty-input').value) || 0;
+    const price = parseFloat(row.querySelector('.price-input').value) || 0;
+    const discount = parseFloat(row.querySelector('.discount-input').value) || 0;
+    const total = qty * price * (1 - discount / 100);
+    row.querySelector('.item-total').textContent = '$' + total.toFixed(2);
+    return total;
+}
+
+function updateSummary() {
+    const rows = saleItems.querySelectorAll('.sale-item-row');
+    let grandTotal = 0;
+    let summaryHTML = '';
+
+    rows.forEach(row => {
+        const productSelect = row.querySelector('.product-select');
+        const productName = productSelect.options[productSelect.selectedIndex]?.text?.split(' (')[0] || '—';
+        const total = updateRowTotal(row);
+        grandTotal += total;
+        if (productSelect.value) {
+            summaryHTML += `
+                <div class="d-flex justify-content-between align-items-center mb-2 small">
+                    <span class="text-truncate me-2" style="max-width:160px">${productName}</span>
+                    <span class="fw-semibold">$${total.toFixed(2)}</span>
+                </div>`;
+        }
+    });
+
+    if (summaryHTML) {
+        orderSummaryEl.innerHTML = summaryHTML;
+    } else {
+        orderSummaryEl.innerHTML = '<div class="text-center text-muted py-3"><i class="bi bi-cart fs-2"></i><p class="mt-2 small">Add items to see summary</p></div>';
+    }
+
+    grandTotalEl.textContent = '$' + grandTotal.toFixed(2);
+    submitBtn.disabled = rows.length === 0 || grandTotal === 0;
+}
+
+addItemBtn.addEventListener('click', addItem);
+
+// Add first item row automatically
+addItem();
+</script>
+{% endblock %}

@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Smart Inventory{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb small">
+                <li class="breadcrumb-item"><a href="{% url 'product_list' %}">Products</a></li>
+                <li class="breadcrumb-item active">{{ title }}</li>
+            </ol>
+        </nav>
+        <h1 class="page-title">{{ title }}</h1>
+    </div>
+    <a href="{% url 'product_list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back to Products
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-xl-10">
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            <div class="row g-4">
+                <!-- Left Column -->
+                <div class="col-lg-8">
+                    <!-- Basic Info -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-white border-0">
+                            <h5 class="mb-0 fw-semibold"><i class="bi bi-info-circle me-2 text-primary"></i>Basic Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-8">
+                                    <label class="form-label fw-medium">Product Name <span class="text-danger">*</span></label>
+                                    {{ form.name }}
+                                    {% if form.name.errors %}
+                                    <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-medium">SKU <span class="text-danger">*</span></label>
+                                    {{ form.sku }}
+                                    {% if form.sku.errors %}
+                                    <div class="text-danger small mt-1">{{ form.sku.errors.0 }}</div>
+                                    {% endif %}
+                                    <div class="form-text">Unique product identifier</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Category</label>
+                                    {{ form.category }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Status</label>
+                                    <div class="mt-2">
+                                        <div class="form-check form-switch">
+                                            {{ form.is_active }}
+                                            <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                                Product is Active
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-medium">Description</label>
+                                    {{ form.description }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pricing -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-white border-0">
+                            <h5 class="mb-0 fw-semibold"><i class="bi bi-currency-dollar me-2 text-success"></i>Pricing</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Selling Price ($) <span class="text-danger">*</span></label>
+                                    {{ form.price }}
+                                    {% if form.price.errors %}
+                                    <div class="text-danger small mt-1">{{ form.price.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Cost Price ($)</label>
+                                    {{ form.cost_price }}
+                                    <div class="form-text">Purchase/supplier cost</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stock -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-0">
+                            <h5 class="mb-0 fw-semibold"><i class="bi bi-clipboard-data me-2 text-warning"></i>Stock Management</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Stock Quantity <span class="text-danger">*</span></label>
+                                    {{ form.stock_quantity }}
+                                    {% if form.stock_quantity.errors %}
+                                    <div class="text-danger small mt-1">{{ form.stock_quantity.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Low Stock Threshold</label>
+                                    {{ form.low_stock_threshold }}
+                                    <div class="form-text">Alert when stock falls below this level</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="col-lg-4">
+                    <!-- Product Image -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-white border-0">
+                            <h5 class="mb-0 fw-semibold"><i class="bi bi-image me-2 text-info"></i>Product Image</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            {% if product and product.image %}
+                            <img src="{{ product.image.url }}" alt="Current image" class="img-fluid rounded-3 mb-3" style="max-height:180px">
+                            <p class="text-muted small">Current image</p>
+                            {% else %}
+                            <div class="bg-light rounded-3 d-flex align-items-center justify-content-center mb-3" style="height:150px">
+                                <i class="bi bi-image text-muted" style="font-size:3rem"></i>
+                            </div>
+                            {% endif %}
+                            {{ form.image }}
+                            <div class="form-text mt-2">JPG, PNG, or GIF (optional)</div>
+                        </div>
+                    </div>
+
+                    <!-- Summary Preview -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-0">
+                            <h6 class="mb-0 fw-semibold">Quick Tips</h6>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled mb-0 small text-muted">
+                                <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>SKU must be unique across all products</li>
+                                <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Set a low stock threshold to get alerts</li>
+                                <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Cost price helps calculate profit margins</li>
+                                <li><i class="bi bi-check-circle text-success me-2"></i>Inactive products won't appear in sales</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="d-flex gap-3 mt-4">
+                <button type="submit" class="btn btn-primary btn-lg px-5">
+                    <i class="bi bi-check-circle me-2"></i>
+                    {% if product %}Update Product{% else %}Save Product{% endif %}
+                </button>
+                <a href="{% url 'product_list' %}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

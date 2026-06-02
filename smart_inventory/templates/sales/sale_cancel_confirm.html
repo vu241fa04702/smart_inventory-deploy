@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load inventory_tags %}
+
+{% block title %}Cancel Sale - Smart Inventory{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center p-5">
+                <div class="text-warning mb-3">
+                    <i class="bi bi-exclamation-triangle-fill" style="font-size:3.5rem"></i>
+                </div>
+                <h4 class="fw-bold">Cancel Sale?</h4>
+                <p class="text-muted">
+                    Cancel sale <strong>{{ sale.sale_number }}</strong> for
+                    <strong>{{ sale.customer_name }}</strong>?
+                    Stock will be automatically restored.
+                </p>
+                <div class="alert alert-info text-start mt-3">
+                    <strong>Sale Total:</strong> ${{ sale.total_amount|floatformat:2 }}<br>
+                    <strong>Items:</strong> {{ sale.total_items }} items will be restocked
+                </div>
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-lg px-4">
+                            <i class="bi bi-x-circle me-2"></i>Cancel Sale
+                        </button>
+                    </form>
+                    <a href="{% url 'sale_detail' sale.pk %}" class="btn btn-outline-secondary btn-lg px-4">
+                        Keep Sale
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

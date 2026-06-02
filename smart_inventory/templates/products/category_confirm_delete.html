@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Category - Smart Inventory{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center p-5">
+                <div class="text-danger mb-3">
+                    <i class="bi bi-exclamation-triangle-fill" style="font-size:3.5rem"></i>
+                </div>
+                <h4 class="fw-bold">Delete Category?</h4>
+                <p class="text-muted">
+                    You are about to delete <strong>{{ category.name }}</strong>.
+                    Products in this category will become uncategorized.
+                </p>
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger px-4">
+                            <i class="bi bi-trash me-2"></i>Delete
+                        </button>
+                    </form>
+                    <a href="{% url 'category_list' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

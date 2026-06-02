@@ -1,0 +1,643 @@
+/* ============================================================
+   Smart Inventory Management System - Main Stylesheet
+   ============================================================ */
+
+/* ---------- Google Font Import ---------- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ---------- CSS Variables ---------- */
+:root {
+    --sidebar-width: 260px;
+    --sidebar-collapsed-width: 70px;
+    --sidebar-bg: #1a2340;
+    --sidebar-hover: #2a3550;
+    --sidebar-active: #0d6efd;
+    --sidebar-text: #a8b4c8;
+    --sidebar-text-active: #ffffff;
+    --topbar-height: 60px;
+    --topbar-bg: #ffffff;
+    --primary: #0d6efd;
+    --success: #198754;
+    --warning: #ffc107;
+    --danger: #dc3545;
+    --info: #0dcaf0;
+    --body-bg: #f0f2f5;
+    --card-border-radius: 12px;
+    --transition-speed: 0.25s;
+}
+
+/* ---------- Base Styles ---------- */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 0.9rem;
+    background-color: var(--body-bg);
+    color: #2d3748;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+/* ---------- Layout Wrapper ---------- */
+.wrapper {
+    min-height: 100vh;
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+.sidebar {
+    width: var(--sidebar-width);
+    min-height: 100vh;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    transition: width var(--transition-speed) ease;
+    overflow: hidden;
+}
+
+/* Sidebar brand/logo area */
+.sidebar-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    flex-shrink: 0;
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: white;
+}
+
+.brand-logo i {
+    font-size: 1.6rem;
+    color: #4a9eff;
+}
+
+.brand-logo span {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+    white-space: nowrap;
+    letter-spacing: -0.3px;
+}
+
+/* Sidebar nav */
+.sidebar-nav {
+    list-style: none;
+    margin: 0;
+    padding: 1rem 0;
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+    width: 4px;
+}
+.sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+.sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+/* Category separator */
+.nav-category {
+    padding: 0.6rem 1.5rem 0.3rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: rgba(168,180,200,0.5);
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+
+/* Nav items */
+.nav-item {
+    margin: 0.15rem 0.75rem;
+}
+
+.nav-item .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.65rem 0.85rem;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all var(--transition-speed) ease;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.nav-item .nav-link i {
+    font-size: 1.15rem;
+    flex-shrink: 0;
+    width: 22px;
+    text-align: center;
+}
+
+.nav-item .nav-link:hover {
+    background: var(--sidebar-hover);
+    color: white;
+}
+
+.nav-item.active .nav-link {
+    background: var(--sidebar-active);
+    color: white;
+    box-shadow: 0 2px 8px rgba(13,110,253,0.4);
+}
+
+/* Sidebar footer (user info) */
+.sidebar-footer {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
+.user-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4a9eff, #0d6efd);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+}
+
+.user-details {
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.user-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-role {
+    font-size: 0.72rem;
+    color: var(--sidebar-text);
+}
+
+.logout-btn {
+    color: var(--sidebar-text);
+    text-decoration: none;
+    font-size: 1.1rem;
+    padding: 0.3rem;
+    border-radius: 6px;
+    transition: color var(--transition-speed);
+}
+
+.logout-btn:hover {
+    color: var(--danger);
+}
+
+/* ============================================================
+   MAIN CONTENT
+   ============================================================ */
+.main-content {
+    margin-left: var(--sidebar-width);
+    min-height: 100vh;
+    transition: margin-left var(--transition-speed) ease;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Top Navbar */
+.top-navbar {
+    height: var(--topbar-height);
+    background: var(--topbar-bg);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    padding: 0 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    flex-shrink: 0;
+}
+
+.sidebar-toggle {
+    color: #6c757d;
+    font-size: 1.4rem;
+    padding: 0.25rem;
+    text-decoration: none;
+}
+
+.sidebar-toggle:hover {
+    color: var(--primary);
+}
+
+/* Page Content */
+.page-content {
+    padding: 1.75rem;
+    flex-grow: 1;
+}
+
+/* Messages/Alerts container */
+.messages-container {
+    margin-bottom: 1.25rem;
+}
+
+/* ============================================================
+   PAGE HEADER
+   ============================================================ */
+.page-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 0.2rem;
+}
+
+.page-subtitle {
+    color: #718096;
+    margin-bottom: 0;
+    font-size: 0.88rem;
+}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.card {
+    border-radius: var(--card-border-radius) !important;
+    border: 1px solid rgba(0,0,0,0.06) !important;
+}
+
+/* Stat Cards */
+.stat-card {
+    border-radius: var(--card-border-radius) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #718096;
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.stat-sub {
+    margin-bottom: 0;
+}
+
+.stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   PRODUCT CARDS
+   ============================================================ */
+.product-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: var(--card-border-radius) !important;
+    overflow: hidden;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12) !important;
+}
+
+.product-img-wrapper {
+    position: relative;
+    height: 160px;
+    background: #f8f9fa;
+    overflow: hidden;
+}
+
+.product-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-img {
+    transform: scale(1.05);
+}
+
+.product-img-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: #ced4da;
+}
+
+.product-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+/* ============================================================
+   TABLES
+   ============================================================ */
+.table {
+    font-size: 0.87rem;
+}
+
+.table thead th {
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6c757d;
+    border-bottom-width: 1px;
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
+}
+
+.table tbody td {
+    padding-top: 0.8rem;
+    padding-bottom: 0.8rem;
+    vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(13,110,253,0.04);
+}
+
+/* ============================================================
+   FORMS
+   ============================================================ */
+.form-control, .form-select {
+    border-radius: 8px;
+    border-color: #e2e8f0;
+    font-size: 0.875rem;
+    padding: 0.5rem 0.85rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(13,110,253,0.12);
+}
+
+.input-group-text {
+    background: #f8f9fa;
+    border-color: #e2e8f0;
+    color: #6c757d;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn {
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 8px;
+    padding: 0.45rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-lg {
+    padding: 0.65rem 1.4rem;
+    font-size: 0.95rem;
+}
+
+.btn-sm {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.8rem;
+}
+
+/* ============================================================
+   BADGES
+   ============================================================ */
+.badge {
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    border-radius: 6px;
+    padding: 0.35em 0.65em;
+}
+
+/* ============================================================
+   BREADCRUMB
+   ============================================================ */
+.breadcrumb {
+    font-size: 0.82rem;
+    margin-bottom: 0.5rem;
+}
+
+.breadcrumb-item a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    text-decoration: underline;
+}
+
+/* ============================================================
+   AUTH PAGES
+   ============================================================ */
+.auth-wrapper {
+    min-height: 100vh;
+}
+
+/* ============================================================
+   PAGINATION
+   ============================================================ */
+.pagination .page-link {
+    border-radius: 8px !important;
+    margin: 0 2px;
+    color: var(--primary);
+    border-color: #e2e8f0;
+    font-size: 0.85rem;
+    padding: 0.4rem 0.75rem;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+/* ============================================================
+   SALE ITEMS (Create Sale)
+   ============================================================ */
+.sale-item-row {
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 10px !important;
+    transition: box-shadow 0.2s ease;
+}
+
+.sale-item-row:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* ============================================================
+   RESPONSIVE SIDEBAR
+   ============================================================ */
+.sidebar.collapsed {
+    width: var(--sidebar-collapsed-width);
+}
+
+.sidebar.collapsed .brand-logo span,
+.sidebar.collapsed .nav-link span,
+.sidebar.collapsed .nav-category,
+.sidebar.collapsed .user-details,
+.sidebar.collapsed .logout-btn {
+    display: none;
+}
+
+.sidebar.collapsed .main-content {
+    margin-left: var(--sidebar-collapsed-width);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 0;
+        transform: translateX(-100%);
+    }
+
+    .sidebar.mobile-open {
+        width: var(--sidebar-width);
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+    }
+
+    .page-content {
+        padding: 1rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .page-title {
+        font-size: 1.3rem;
+    }
+}
+
+/* ============================================================
+   UTILITIES & MISC
+   ============================================================ */
+code {
+    background: #f1f3f5;
+    color: #e03131;
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    font-size: 0.82em;
+}
+
+.list-group-item {
+    border-color: rgba(0,0,0,0.06) !important;
+}
+
+.list-group-item-action:hover {
+    background-color: rgba(13,110,253,0.04) !important;
+}
+
+/* Card header borders */
+.card-header {
+    border-bottom: 1px solid rgba(0,0,0,0.06) !important;
+}
+
+/* Progress bars */
+.progress {
+    border-radius: 10px;
+    background-color: #e9ecef;
+}
+
+.progress-bar {
+    border-radius: 10px;
+}
+
+/* Scrollbar for main content */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+
+/* Alert styling */
+.alert {
+    border-radius: 10px;
+    border: none;
+    font-size: 0.875rem;
+}
+
+.alert-success { background: rgba(25, 135, 84, 0.1); color: #198754; }
+.alert-danger, .alert-error { background: rgba(220, 53, 69, 0.1); color: #dc3545; }
+.alert-warning { background: rgba(255, 193, 7, 0.15); color: #856404; }
+.alert-info { background: rgba(13, 202, 240, 0.1); color: #0a6478; }
+
+/* Page transition */
+.page-content {
+    animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Sticky top card for sale create */
+@supports (position: sticky) {
+    .sticky-top {
+        position: sticky;
+    }
+}
